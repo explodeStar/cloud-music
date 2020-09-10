@@ -1,6 +1,7 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useEffect, useContext} from 'react';
 import Horizen from '../../baseUI/horizen-item';
 import { categoryTypes, alphaTypes } from '../../api/config';
+import { CategoryDataContext } from './data';
 import {
   NavContainer,
   ListContainer,
@@ -21,41 +22,38 @@ import  LazyLoad, {forceCheck} from 'react-lazyload';
 import Scroll from './../../baseUI/scroll/index';
 import {connect} from 'react-redux';
 import Loading from '../../baseUI/loading';
-import {CategoryDataContext} from "./data";
-import {fromJS} from "immutable";
-import {CHANGE_ALPHA,CHANGE_CATEGORY} from './data'
+import { CHANGE_CATEGORY, CHANGE_ALPHA, Data } from './data';
+import {renderRoutes} from "react-router-config";
 
 function Singers(props) {
-  const {data, dispatch} = useContext(CategoryDataContext)
-  const {category, alpha} = fromJS(data);
-  // let [category, setCategory] = useState('');
-  // let [alpha, setAlpha] = useState('');
-
   const { singerList, enterLoading, pullUpLoading, pullDownLoading, pageCount } = props;
+
   const { getHotSingerDispatch, updateDispatch, pullDownRefreshDispatch, pullUpRefreshDispatch } = props;
 
+  const {data, dispatch} = useContext(CategoryDataContext);
+
+  const {category, alpha} = data.toJS();
+
   useEffect(() => {
-    getHotSingerDispatch();
+    if(!singerList.size) {
+      getHotSingerDispatch();
+    }
     // eslint-disable-next-line
   }, []);
+  const enterDetail = (id)  => {
+    console.log(id)
+    props.history.push(`/singers/${id}`);
+  };
 
   let handleUpdateAlpha = (val) => {
-    // setAlpha(val);
-    dispatch({type: CHANGE_ALPHA,data: val})
+    dispatch({type: CHANGE_ALPHA, data: val});
     updateDispatch(category, val);
   };
 
   let handleUpdateCatetory = (val) => {
-    // setCategory(val);
-    dispatch({type: CHANGE_CATEGORY,data: val})
+    dispatch({type: CHANGE_CATEGORY, data: val});
     updateDispatch(val, alpha);
   };
-  //当歌手列表不为空时，就不发 Ajax 请求
-  useEffect(() => {
-    if (!singerList.size) {
-      getHotSingerDispatch()
-    }
-  },[])
 
   const handlePullUp = () => {
     pullUpRefreshDispatch(category, alpha, category === '', pageCount);
@@ -72,7 +70,7 @@ function Singers(props) {
         {
           list.map((item, index) => {
             return (
-              <ListItem key={item.accountId+""+index}>
+              <ListItem key={item.accountId+""+index} onClick={() => enterDetail(item.id)}>
                 <div className="img_wrapper">
                   <LazyLoad placeholder={<img width="100%" height="100%" src={require('./singer.png')} alt="music"/>}>
                     <img src={`${item.picUrl}?param=300x300`} width="100%" height="100%" alt="music"/>
@@ -86,25 +84,27 @@ function Singers(props) {
       </List>
     )
   };
-
   return (
     <div>
-      <NavContainer>
-        <Horizen list={categoryTypes} title={"分类(默认热门):"} handleClick={(val) => handleUpdateCatetory(val)} oldVal={category} />
-        <Horizen list={alphaTypes} title={"首字母:"} handleClick={val => handleUpdateAlpha(val)} oldVal={alpha} />
-      </NavContainer>
-      <ListContainer>
-        <Scroll
-          pullUp={ handlePullUp }
-          pullDown = { handlePullDown }
-          pullUpLoading = { pullUpLoading }
-          pullDownLoading = { pullDownLoading }
-          onScroll={forceCheck}
-        >
-          { renderSingerList() }
-        </Scroll>
-        <Loading show={enterLoading} />
-      </ListContainer>
+      <Data>
+        <NavContainer>
+          <Horizen list={categoryTypes} title={"分类(默认热门):"} handleClick={(val) => handleUpdateCatetory(val)} oldVal={category} />
+          <Horizen list={alphaTypes} title={"首字母:"} handleClick={val => handleUpdateAlpha(val)} oldVal={alpha} />
+        </NavContainer>
+        <ListContainer>
+          <Scroll
+            pullUp={ handlePullUp }
+            pullDown = { handlePullDown }
+            pullUpLoading = { pullUpLoading }
+            pullDownLoading = { pullDownLoading }
+            onScroll={forceCheck}
+          >
+            { renderSingerList() }
+          </Scroll>
+          <Loading show={enterLoading} />
+        </ListContainer>
+        { renderRoutes(props.route.routes) }
+      </Data>
     </div>
   )
 }
