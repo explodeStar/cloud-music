@@ -8,7 +8,7 @@ import { renderRoutes } from 'react-router-config';
 import Loading from '../../baseUI/loading';
 
 
-const Rank = (props) => {
+function Rank(props){
 
   const {rankList:list,loading} = props
   const {getRankListDataDispatch} = props
@@ -24,13 +24,9 @@ const Rank = (props) => {
     }
   },[])
 
-  const enterDetail = (name) => {
-    console.log(name)
-    const idx = filterIdx(name);
-    if(idx === null) {
-      alert("暂无相关数据");
-      return;
-    }
+  const enterDetail = (detail) => {
+    console.log(detail)
+    props.history.push(`/rank/${detail.id}`)
   }
 
   const renderRankList = (list, global) => {
@@ -39,7 +35,7 @@ const Rank = (props) => {
         {
           list.map((item,index) => {
             return (
-              <ListItem key={index} tracks={item.tracks} onClick={() => enterDetail(item.name)}>
+              <ListItem key={index} tracks={item.tracks} onClick={() => enterDetail(item)}>
                 <div className="img_wrapper">
                   <img src={item.coverImgUrl} alt=""/>
                   <div className="decorate" />

@@ -1,12 +1,13 @@
 import React, {useEffect} from "react";
 import Slider from "../../components/slider";
-import { connect } from "react-redux";                      
+import { connect } from "react-redux";
 import * as actionTypes  from "./store/actionCreators";
 import RecommendList from "../../components/list";
 import Scroll from '../../baseUI/scroll'
 import { Content } from "./style";
 import { forceCheck } from "react-lazyload";
 import Loading from "../../baseUI/loading";
+import {renderRoutes} from "react-router-config";
 
 
 
@@ -51,7 +52,8 @@ const Recommend = (props) => {
         </div>
       </Scroll>
       {enterLoading && <Loading /> }
-
+       {/*将目前所在路由的下一层子路由加以渲染*/}
+      { renderRoutes(props.route.routes)}
     </Content>
   )
 }
