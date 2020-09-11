@@ -2,7 +2,7 @@ import React from "react";
 import { renderRoutes } from "react-router-config";
 import { Top, Tab, TabItem } from "./style";
 import { NavLink } from "react-router-dom";// 利用 NavLink 组件进行路由跳转
-
+import Player from '../Player'
 
 
 
@@ -23,6 +23,7 @@ const Home = (props) => {
         <NavLink to="/rank" activeClassName="selected"><TabItem><span > 排行榜 </span></TabItem></NavLink>
       </Tab>
       { renderRoutes(route.routes) }
+      <Player />
     </div>
   )
 }
