@@ -8,10 +8,12 @@ import { HEADER_HEIGHT } from "./../../api/config";
 import {connect} from "react-redux";
 import {getSingerInfo,changeEnterLoading} from "./store/actionCreators";
 import Loading from "./../../baseUI/loading/index";
+import MusicNote from "../../baseUI/music-note/index";
 
 
 function Singer(props) {
   const [showStatus, setShowStatus] = useState (true);
+  const musicNoteRef = useRef()
 
   const {
     artist: immutableArtist,
@@ -95,6 +97,10 @@ function Singer(props) {
     }
   },[])
 
+  const musicAnimation = (x, y) => {
+    musicNoteRef.current.startAnimation({x, y})
+  }
+
   return (
     <CSSTransition
       in={showStatus}
@@ -117,9 +123,14 @@ function Singer(props) {
         <SongListWrapper ref={songScrollWrapper}>
           {/*待定*/}
           <Scroll onScroll={handleScroll} ref={songScroll}>
-            <SongsList songs={songs} showCollect={false} />
+            <SongsList
+              songs={songs}
+              showCollect={false}
+              musicAnimation={musicAnimation}
+            />
           </Scroll>
         </SongListWrapper>
+        <MusicNote ref={musicNoteRef} />
         {loading ? <Loading /> : null}
       </Container>
     </CSSTransition>

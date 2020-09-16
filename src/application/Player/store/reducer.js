@@ -1,6 +1,7 @@
 import * as actionTypes from './constants';
 import {fromJS} from 'immutable';
 import { playMode } from './../../../api/config';
+import { findIndex } from '../../../api/utils';// 注意引入工具方法
 
 const defaultState = fromJS ({
   fullScreen: false,// 播放器是否为全屏模式
@@ -12,6 +13,25 @@ const defaultState = fromJS ({
   showPlayList: false,// 是否展示播放列表
   currentSong: {}
 });
+
+const handleDeleteSong = (state, song) => {
+  const playList = JSON.parse(JSON.stringify(state.get('playList').toJS()));
+  const sequenceList = JSON.parse(JSON.stringify(state.get('sequencePlayList').toJS()));
+  let currentIndex = state.get('currentIndex');
+
+  const fpIndex = findIndex(song, playList);
+  playList.splice(fpIndex, 1);
+  if(fpIndex < currentIndex) currentIndex--;
+
+  const fsIndex = findIndex(song, sequenceList);
+  sequenceList.splice(fsIndex, 1);
+
+  return state.merge({
+    'playList': fromJS(playList),
+    'sequencePlayList': fromJS(sequenceList),
+    'currentIndex': fromJS(currentIndex),
+  });
+}
 
 export default (state = defaultState, action) => {
   switch (action.type) {
@@ -31,6 +51,8 @@ export default (state = defaultState, action) => {
       return state.set('currentIndex', action.data);
     case actionTypes.SET_SHOW_PLAYLIST:
       return state.set('showPlayList', action.data);
+    case actionTypes.DELETE_SONG:
+      return handleDeleteSong;
     default:
       return state;
   }
